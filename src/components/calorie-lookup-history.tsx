@@ -37,7 +37,7 @@ export function CalorieLookupHistory() {
         <div>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <History className="h-5 w-5" />
-            Calorie Lookup History
+            Calorie History
           </CardTitle>
           <CardDescription className="text-sm">{history.length} recent searches</CardDescription>
         </div>
