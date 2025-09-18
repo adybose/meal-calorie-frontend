@@ -41,14 +41,22 @@ export function AuthForm({ mode }: AuthFormProps) {
       const response = isRegister
         ? await apiClient.register(data as RegisterFormData)
         : await apiClient.login(data as LoginFormData)
-
-      setAuth(response.token, response.user)
+      
+      console.log('[Auth Form] Full response structure:', JSON.stringify(response, null, 2))
+      const token = response.access_token || response.token
+      const user = response.user
+      console.log('[Auth Form] Extracted - token present:', !!token, 'user present:', !!user, 'response keys:', Object.keys(response))
+      
+      setAuth(token || null, user || null)
+      console.log('[Auth Form] setAuth called with token:', !!token, 'user:', !!user)
+      
       toast({
         title: isRegister ? "Account created!" : "Welcome back!",
         description: isRegister ? "You can now start tracking calories." : "Successfully logged in.",
       })
       router.push("/dashboard")
     } catch (error) {
+      console.error('[Auth Form] Login/Register error:', error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Something went wrong",
@@ -74,12 +82,12 @@ export function AuthForm({ mode }: AuthFormProps) {
               <div className="space-y-2">
                 <Label htmlFor="first_name">First Name</Label>
                 <Input id="first_name" {...register("first_name")} placeholder="John" />
-                {errors.first_name && <p className="text-sm text-destructive">{errors.first_name.message}</p>}
+                {(errors as any).first_name && <p className="text-sm text-destructive">{(errors as any).first_name.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="last_name">Last Name</Label>
                 <Input id="last_name" {...register("last_name")} placeholder="Doe" />
-                {errors.last_name && <p className="text-sm text-destructive">{errors.last_name.message}</p>}
+                {(errors as any).last_name && <p className="text-sm text-destructive">{(errors as any).last_name.message}</p>}
               </div>
             </div>
           )}
