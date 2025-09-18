@@ -1,16 +1,16 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { ThemeProvider } from "next-themes"
-import ThemeToggle from "@/components/ui/ThemeToggle" 
-import { Toaster } from '@/components/ui/sonner' // shadcn toast
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
+import { Navbar } from "@/components/navbar"
 
-
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: 'Meal Calorie Count Generator',
-  description: 'Track meal calories with USDA data',
+  title: "Meal Calorie Counter",
+  description: "Track calories for your favorite dishes",
 }
 
 export default function RootLayout({
@@ -21,12 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <nav className="border-b p-4 flex justify-between">
-            <h1 className="text-xl font-bold">Calorie Tracker</h1>
-            <ThemeToggle />
-          </nav>
-          {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <div className="min-h-screen bg-background">
+            <Navbar />
+            <main>{children}</main>
+          </div>
           <Toaster />
         </ThemeProvider>
       </body>
