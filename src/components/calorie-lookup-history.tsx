@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { History, Trash2, Utensils } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
-export function MealHistory() {
+export function CalorieLookupHistory() {
   const { history, clearHistory } = useMealStore()
 
   if (history.length === 0) {
@@ -16,14 +16,14 @@ export function MealHistory() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <History className="h-5 w-5" />
-            Meal History
+            Calorie Lookup History
           </CardTitle>
           <CardDescription className="text-sm">Your recent calorie lookups will appear here</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <Utensils className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-sm sm:text-base">No meals searched yet</p>
+            <p className="text-sm sm:text-base">No dishes searched yet</p>
             <p className="text-xs sm:text-sm">Start by looking up a dish!</p>
           </div>
         </CardContent>
@@ -37,7 +37,7 @@ export function MealHistory() {
         <div>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <History className="h-5 w-5" />
-            Meal History
+            Calorie Lookup History
           </CardTitle>
           <CardDescription className="text-sm">{history.length} recent searches</CardDescription>
         </div>
