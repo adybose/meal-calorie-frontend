@@ -81,7 +81,11 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
+            {isHydrating ? (
+              <div className="animate-pulse">
+                <div className="h-8 w-8 bg-muted rounded-full" />
+              </div>
+            ) : isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
