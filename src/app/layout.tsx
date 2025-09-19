@@ -9,7 +9,7 @@ import { Navbar } from "@/components/navbar"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Meal Calorie Counter",
+  title: "Meal Calorie Tracker",
   description: "Track calories for your favorite dishes",
 }
 

@@ -55,7 +55,7 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-8">
             <Link href="/" className="text-xl font-bold">
-              Meal Calorie Counter
+              Meal Calorie Tracker
             </Link>
 
             {isAuthenticated && (
