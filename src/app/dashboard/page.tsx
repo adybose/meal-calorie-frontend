@@ -1,17 +1,22 @@
 "use client"
 
+import { useState } from "react"
 import { useAuthGuard } from "@/hooks/use-auth-guard"
 import { useAuthStore } from "@/stores/auth-store"
-import { useMealStore } from "@/stores/meal-store"
+import { useMealLogStore } from "@/stores/meal-log-store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calculator, TrendingUp, Utensils, User } from "lucide-react"
-import Link from "next/link"
+import { Calculator, TrendingUp, Utensils } from "lucide-react"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { MealLogForm } from "@/components/meal-log-form"
+import { MealLogHistory } from "@/components/meal-log-history"
 
 export default function DashboardPage() {
   useAuthGuard()
   const { user } = useAuthStore()
-  const { history } = useMealStore()
+  const { history, addMeal } = useMealLogStore()
+
+  const [open, setOpen] = useState(false)
 
   if (!user) return null
 
@@ -77,40 +82,28 @@ export default function DashboardPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-              <CardDescription className="text-sm">Get started with meal logging</CardDescription>
+              <CardTitle className="text-lg">Log a Meal</CardTitle>
+              <CardDescription className="text-sm">Open the form to log your meal</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button asChild className="w-full text-sm">
-                <Link href="/calories">
-                  <Utensils className="mr-2 h-4 w-4" />
-                  Log a Meal
-                </Link>
+              <Button onClick={() => setOpen(true)} className="w-full text-sm">
+                <Utensils className="mr-2 h-4 w-4" />
+                Log a Meal
               </Button>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <User className="h-5 w-5" />
-                Profile
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm font-medium">Name</p>
-                <p className="text-sm text-muted-foreground">
-                  {user.first_name} {user.last_name}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Email</p>
-                <p className="text-sm text-muted-foreground break-all">{user.email}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <MealLogHistory />
         </div>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="max-w-md">
+            <MealLogForm onResult={(result) => {
+              addMeal(result)
+              setOpen(false)
+            }} />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

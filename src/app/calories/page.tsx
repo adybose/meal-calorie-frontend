@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { MealForm } from "@/components/meal-form"
+import { CalorieLookupForm } from "@/components/calorie-lookup-form"
 import { ResultCard } from "@/components/result-card"
 import type { CalorieResponse } from "@/types"
 import { useAuthGuard } from "@/hooks/use-auth-guard"
 import { useAuthStore } from "@/stores/auth-store"
-import { useMealStore } from "@/stores/meal-store"
+import { useCalorieLookupStore } from "@/stores/calorie-lookup-store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalorieLookupHistory } from "@/components/calorie-lookup-history"
 import { Calculator, TrendingUp, Utensils } from "lucide-react"
@@ -14,17 +14,17 @@ import { Calculator, TrendingUp, Utensils } from "lucide-react"
 export default function CaloriesPage() {
   useAuthGuard()
   const { user } = useAuthStore()
-  const { history } = useMealStore()
+  const { history } = useCalorieLookupStore()
   const totalSearches = history.length
   const totalCalories = history.reduce((sum, meal) => sum + meal.total_calories, 0)
   const avgCaloriesPerMeal = totalSearches > 0 ? Math.round(totalCalories / totalSearches) : 0
 
   const [result, setResult] = useState<CalorieResponse | null>(null)
-  const { addMeal } = useMealStore()
+  const { addCalorieLookup } = useCalorieLookupStore()
 
   const handleResult = (newResult: CalorieResponse) => {
     setResult(newResult)
-    addMeal(newResult)
+    addCalorieLookup(newResult)
   }
 
   return (
@@ -74,7 +74,7 @@ export default function CaloriesPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           <div>
-            <MealForm onResult={handleResult} />
+            <CalorieLookupForm onResult={handleResult} />
           </div>
 
           <div>

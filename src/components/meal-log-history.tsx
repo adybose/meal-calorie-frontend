@@ -1,14 +1,14 @@
 "use client"
 
-import { useCalorieLookupStore } from "@/stores/calorie-lookup-store"
+import { useMealLogStore } from "@/stores/meal-log-store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { History, Trash2, Utensils } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
-export function CalorieLookupHistory() {
-  const { history, clearHistory } = useCalorieLookupStore()
+export function MealLogHistory() {
+  const { history, clearHistory } = useMealLogStore()
 
   if (history.length === 0) {
     return (
@@ -16,15 +16,15 @@ export function CalorieLookupHistory() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <History className="h-5 w-5" />
-            Calorie Lookup History
+            Meal Log History
           </CardTitle>
-          <CardDescription className="text-sm">Your recent calorie lookups will appear here</CardDescription>
+          <CardDescription className="text-sm">Your recent meal logs will appear here</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <Utensils className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-sm sm:text-base">No dishes searched yet</p>
-            <p className="text-xs sm:text-sm">Start by looking up a dish!</p>
+            <p className="text-sm sm:text-base">No meals logged yet</p>
+            <p className="text-xs sm:text-sm">Start by logging a meal!</p>
           </div>
         </CardContent>
       </Card>
@@ -37,9 +37,9 @@ export function CalorieLookupHistory() {
         <div>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <History className="h-5 w-5" />
-            Calorie History
+            Meal Log History
           </CardTitle>
-          <CardDescription className="text-sm">{history.length} recent searches</CardDescription>
+          <CardDescription className="text-sm">{history.length} recent logs</CardDescription>
         </div>
         <Button
           variant="outline"
