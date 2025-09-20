@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useToast } from "@/hooks/use-toast"
 import { calorieSchema, type CalorieFormData } from "@/lib/validations"
 import { apiClient } from "@/lib/api"
-import type { CalorieResponse } from "@/types"
+import type { CalorieRequest, CalorieResponse } from "@/types"
 import { Loader2, Utensils } from "lucide-react"
 
 interface MealLogFormProps {
@@ -26,21 +26,39 @@ export function MealLogForm({ onResult }: MealLogFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<CalorieFormData>({
     resolver: zodResolver(calorieSchema),
     defaultValues: {
-      servings: 1,
+      dish_name: "",
+      mode: "servings",
+      amount: 1,
     },
   })
+
+  const selectedMode = watch("mode")
 
   const onSubmit = async (data: CalorieFormData) => {
     setIsLoading(true)
     try {
-      const result = await apiClient.getCalories(data)
-      onResult(result)
+      const apiRequest: CalorieRequest = {
+        dish_name: data.dish_name,
+        servings: data.amount,
+        mode: data.mode,
+      }
+      const result = await apiClient.getCalories(apiRequest)
+
+      const extendedResult: CalorieResponse = {
+        ...result,
+        mode: data.mode,
+        amount: data.amount,
+      }
+
+      onResult(extendedResult)
+      const calories = result.total_nutrients?.find(n => n.name === 'Energy' && n.unit === 'kcal')?.value || 0
       toast({
         title: "Meal Logged!",
-        description: `Logged ${result.dish_name} with ${result.total_calories} calories`,
+        description: `Logged ${result.dish_name} with ${Math.round(calories)} calories`,
       })
       reset()
     } catch (error) {
@@ -62,7 +80,7 @@ export function MealLogForm({ onResult }: MealLogFormProps) {
           Log a Meal
         </CardTitle>
         <CardDescription className="text-sm">
-          Enter a dish name and number of servings to log your meal
+          Enter a dish name and measurement to log your meal
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -81,20 +99,51 @@ export function MealLogForm({ onResult }: MealLogFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="servings" className="text-sm font-medium">
-              Number of Servings
+            <Label className="text-sm font-medium">Measurement Mode</Label>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="mode-servings"
+                  type="radio"
+                  value="servings"
+                  {...register("mode")}
+                  className="w-4 h-4 text-primary focus:ring-primary"
+                />
+                <Label htmlFor="mode-servings" className="text-sm font-medium cursor-pointer">
+                  Servings
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="mode-grams"
+                  type="radio"
+                  value="grams"
+                  {...register("mode")}
+                  className="w-4 h-4 text-primary focus:ring-primary"
+                />
+                <Label htmlFor="mode-grams" className="text-sm font-medium cursor-pointer">
+                  Grams
+                </Label>
+              </div>
+            </div>
+            {errors.mode && <p className="text-xs text-destructive">{errors.mode.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="amount" className="text-sm font-medium">
+              {selectedMode === "servings" ? "Number of Servings" : "Number of Grams"}
             </Label>
             <Input
-              id="servings"
+              id="amount"
               type="number"
               step="0.1"
               min="0.1"
-              max="50"
-              {...register("servings", { valueAsNumber: true })}
-              placeholder="1"
+              max={selectedMode === "servings" ? 50 : 1000}
+              {...register("amount", { valueAsNumber: true })}
+              placeholder={selectedMode === "servings" ? "1" : "100"}
               className="w-full text-sm"
             />
-            {errors.servings && <p className="text-xs text-destructive">{errors.servings.message}</p>}
+            {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
           </div>
 
           <Button type="submit" className="w-full text-sm" disabled={isLoading}>

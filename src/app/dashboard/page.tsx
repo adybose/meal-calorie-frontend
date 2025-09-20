@@ -10,6 +10,13 @@ import { Calculator, TrendingUp, Utensils } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { MealLogForm } from "@/components/meal-log-form"
 import { MealLogHistory } from "@/components/meal-log-history"
+import { CalorieLookupHistory } from "@/components/calorie-lookup-history"
+import type { Nutrient } from "@/types"
+
+function getCalories(nutrients: Nutrient[] | undefined): number {
+  const energyNutrient = nutrients?.find(n => n.name === 'Energy' && n.unit === 'kcal')
+  return energyNutrient ? Math.round(energyNutrient.value) : 0
+}
 
 export default function DashboardPage() {
   useAuthGuard()
@@ -33,7 +40,7 @@ export default function DashboardPage() {
   )
 
   const totalMealsToday = todayMeals.length
-  const caloriesToday = todayMeals.reduce((sum, meal) => sum + meal.total_calories, 0)
+  const caloriesToday = todayMeals.reduce((sum, meal) => sum + getCalories(meal.computed_total_nutrients || meal.total_nutrients), 0)
   const avgCaloriesPerMealToday = totalMealsToday > 0 ? Math.round(caloriesToday / totalMealsToday) : 0
 
   return (
@@ -94,6 +101,7 @@ export default function DashboardPage() {
           </Card>
 
           <MealLogHistory />
+          {/* <CalorieLookupHistory /> */}
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>

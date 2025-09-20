@@ -5,11 +5,40 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, History, Trash2, Utensils } from "lucide-react"
+import { ChevronDown, History, Trash2, Utensils, Dumbbell, Droplet, Wheat } from "lucide-react"
 import { formatDistanceToNow, format, isToday, isYesterday } from "date-fns"
+import type { Nutrient } from "@/types"
+
+function getCalories(nutrients: Nutrient[] | undefined): number {
+  const energyNutrient = nutrients?.find(n => n.name === 'Energy' && n.unit === 'kcal')
+  return energyNutrient ? Math.round(energyNutrient.value) : 0
+}
+
+function getNutrientValue(nutrients: Nutrient[] | undefined, name: string): number {
+  const nut = nutrients?.find(n => n.name === name);
+  return nut ? Math.round(nut.value * 100) / 100 : 0;
+}
 
 export function MealLogHistory() {
   const { history, clearHistory } = useMealLogStore()
+
+  // Group by date
+  const groups = history.reduce((acc, meal) => {
+    const date = new Date(meal.timestamp)
+    const dateKey = format(date, 'yyyy-MM-dd')
+    if (!acc[dateKey]) {
+      acc[dateKey] = {
+        date,
+        meals: []
+      }
+    }
+    acc[dateKey].meals.push(meal)
+    return acc
+  }, {} as Record<string, { date: Date; meals: typeof history }>)
+
+  const sortedGroups = Object.values(groups).sort((a, b) => b.date.getTime() - a.date.getTime())
+
+  const [expanded, setExpanded] = useState(new Set(sortedGroups.map(g => format(g.date, 'yyyy-MM-dd'))))
 
   if (history.length === 0) {
     return (
@@ -31,24 +60,6 @@ export function MealLogHistory() {
       </Card>
     )
   }
-
-  // Group by date
-  const groups = history.reduce((acc, meal) => {
-    const date = new Date(meal.timestamp)
-    const dateKey = format(date, 'yyyy-MM-dd')
-    if (!acc[dateKey]) {
-      acc[dateKey] = {
-        date,
-        meals: []
-      }
-    }
-    acc[dateKey].meals.push(meal)
-    return acc
-  }, {} as Record<string, { date: Date; meals: typeof history }>)
-
-  const sortedGroups = Object.values(groups).sort((a, b) => b.date.getTime() - a.date.getTime())
-
-  const [expanded, setExpanded] = useState(new Set(sortedGroups.map(g => format(g.date, 'yyyy-MM-dd'))))
 
   const toggleGroup = (dateKey: string) => {
     setExpanded(prev => {
@@ -92,7 +103,7 @@ export function MealLogHistory() {
             const dateKey = format(group.date, 'yyyy-MM-dd')
             const isExpanded = expanded.has(dateKey)
             const totalMeals = group.meals.length
-            const totalCalories = group.meals.reduce((sum, meal) => sum + meal.total_calories, 0)
+            const totalCalories = group.meals.reduce((sum, meal) => sum + getCalories(meal.computed_total_nutrients || meal.total_nutrients), 0)
             const dayLabel = isToday(group.date) ? 'Today' : isYesterday(group.date) ? 'Yesterday' : format(group.date, 'MMM d, yyyy')
             const fullDate = format(group.date, 'EEEE, MMMM d, yyyy')
 
@@ -122,34 +133,46 @@ export function MealLogHistory() {
                     <CardContent className="p-0 pt-4 border-t">
                       <div className="space-y-3 p-4">
                         {group.meals
-                          .sort((a, b) => b.timestamp - a.timestamp)
-                          .map((meal) => (
-                            <div
-                              key={meal.id}
-                              className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                            >
-                              <div className="flex-1 min-w-0 pr-4">
-                                <h4 className="font-medium truncate text-sm sm:text-base">{meal.dish_name}</h4>
-                                <div className="flex flex-wrap items-center gap-2 mt-1">
-                                  <Badge variant="secondary" className="text-xs">
-                                    {meal.servings} serving{meal.servings !== 1 ? "s" : ""}
-                                  </Badge>
-                                  <Badge variant="outline" className="text-xs">
-                                    {meal.total_calories} cal
-                                  </Badge>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {formatDistanceToNow(meal.timestamp, { addSuffix: true })}
-                                </p>
-                              </div>
-                              <div className="text-right flex-shrink-0">
-                                <div className="font-semibold text-primary text-sm sm:text-base">
-                                  {meal.total_calories}
-                                </div>
-                                <div className="text-xs text-muted-foreground">calories</div>
-                              </div>
-                            </div>
-                          ))}
+                           .sort((a, b) => b.timestamp - a.timestamp)
+                           .map((meal) => {
+                             const totalCalories = getCalories(meal.computed_total_nutrients || meal.total_nutrients)
+                             const measurement = meal.mode === 'servings'
+                               ? `${meal.amount || 0} serving${(meal.amount || 0) !== 1 ? 's' : ''} (${((meal.amount || 0) * parseFloat(meal.serving_size || '0')).toFixed(0)}g)`
+                               : `${meal.amount || 0}g`
+                             const protein = getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Protein')
+                             const fat = getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Total lipid (fat)')
+                             const carbs = getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Carbohydrate, by difference')
+
+                             return (
+                               <div
+                                 key={meal.id}
+                                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                               >
+                                 <div className="flex-1 min-w-0 pr-4">
+                                   <h4 className="font-medium truncate text-sm sm:text-base">{meal.dish_name}</h4>
+                                   <p className="text-xs text-muted-foreground mt-1">{measurement}</p>
+                                   <p className="text-xs text-muted-foreground mt-1">
+                                     {formatDistanceToNow(meal.timestamp, { addSuffix: true })}
+                                   </p>
+                                 </div>
+                                 <div className="text-right flex-shrink-0">
+                                   <div className="font-semibold text-primary text-sm sm:text-base">{totalCalories}</div>
+                                   <div className="text-xs text-muted-foreground">calories</div>
+                                   <div className="flex flex-wrap justify-end gap-1 mt-2">
+                                     <Badge variant="outline" className="flex items-center gap-1 text-xs border-primary">
+                                       <Dumbbell className="h-3 w-3" /> {protein}g
+                                     </Badge>
+                                     <Badge variant="outline" className="flex items-center gap-1 text-xs border-primary">
+                                       <Droplet className="h-3 w-3" /> {fat}g
+                                     </Badge>
+                                     <Badge variant="outline" className="flex items-center gap-1 text-xs border-primary">
+                                       <Wheat className="h-3 w-3" /> {carbs}g
+                                     </Badge>
+                                   </div>
+                                 </div>
+                               </div>
+                             )
+                           })}
                       </div>
                     </CardContent>
                   )}
