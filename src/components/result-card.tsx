@@ -40,7 +40,7 @@ export function ResultCard({ result }: ResultCardProps) {
               <div className="text-sm font-normal text-muted-foreground">{result.selected_food}</div>
             </div>
           </CardTitle>
-          <CardDescription className="space-y-1">
+          <div className="text-sm text-muted-foreground space-y-1">
             <div className="flex items-center gap-2 text-xs">
               <Database className="h-3 w-3" />
               USDA FDC ID: {result.fdc_id}
@@ -52,7 +52,7 @@ export function ResultCard({ result }: ResultCardProps) {
             <div className="text-xs text-muted-foreground">
               Requested: {modeText}
             </div>
-          </CardDescription>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -60,7 +60,7 @@ export function ResultCard({ result }: ResultCardProps) {
               <div className="text-xs font-medium text-muted-foreground mb-2">Per 100g</div>
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-1 text-orange-500 font-semibold text-lg px-4 py-2">
-                  <Flame className="h-4 w-4" /> Energy: {per100gCalories} kcal
+                  <Flame className="h-4 w-4" /> {per100gCalories} kcal
                 </div>
                 <Badge variant="outline" className="flex items-center gap-1 border-primary">
                   <Dumbbell className="h-3 w-3" /> Protein: {getNutrientValue(result.per_100g_nutrients, 'Protein')}g
@@ -80,7 +80,7 @@ export function ResultCard({ result }: ResultCardProps) {
               <div className="text-xs font-medium text-muted-foreground mb-2">Per Serving</div>
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-1 text-orange-500 font-semibold text-lg px-4 py-2">
-                  <Flame className="h-4 w-4" /> Energy: {perServingCalories} kcal
+                  <Flame className="h-4 w-4" /> {perServingCalories} kcal
                 </div>
                 <Badge variant="outline" className="flex items-center gap-1 border-primary">
                   <Dumbbell className="h-3 w-3" /> Protein: {getNutrientValue(result.per_serving_nutrients, 'Protein')}g
@@ -100,7 +100,7 @@ export function ResultCard({ result }: ResultCardProps) {
               <div className="text-xs font-medium text-primary mb-2">Total</div>
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-1 text-orange-500 font-semibold text-lg px-4 py-2">
-                  <Flame className="h-4 w-4" /> Energy: {totalCalories} kcal
+                  <Flame className="h-4 w-4" /> {totalCalories} kcal
                 </div>
                 <Badge variant="outline" className="flex items-center gap-1 border-primary">
                   <Dumbbell className="h-3 w-3" /> Protein: {getNutrientValue(result.computed_total_nutrients || result.total_nutrients, 'Protein')}g

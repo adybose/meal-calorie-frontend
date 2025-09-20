@@ -34,6 +34,7 @@ export interface Nutrient {
 export interface CalorieRequest {
   dish_name: string
   servings: number
+  mode: 'servings' | 'grams'
 }
 
 export interface CalorieResponse {
@@ -43,6 +44,7 @@ export interface CalorieResponse {
   serving_size: string
   household_serving_text: string
   total_servings: number
+  total_energy: number
   per_100g_nutrients: Nutrient[]
   per_serving_nutrients: Nutrient[]
   total_nutrients: Nutrient[]

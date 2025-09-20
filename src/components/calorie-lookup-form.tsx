@@ -41,47 +41,17 @@ export function CalorieLookupForm({ onResult }: CalorieFormProps) {
   const onSubmit = async (data: CalorieFormData) => {
     setIsLoading(true)
     try {
-      // Always request for 1 serving to get base data
       const apiRequest: CalorieRequest = {
         dish_name: data.dish_name,
-        servings: 1,
+        servings: data.amount,
+        mode: data.mode,
       }
-      let baseResult = await apiClient.getCalories(apiRequest)
-
-      // Compute scale factor based on mode
-      let scaleFactor = 1
-      if (data.mode === "servings") {
-        scaleFactor = data.amount
-        baseResult.total_servings = data.amount
-      } else if (data.mode === "grams") {
-        const servingSizeNum = parseFloat(baseResult.serving_size.split(' ')[0]) || 100
-        const servingUnit = baseResult.serving_size.split(' ')[1]?.toLowerCase()
-        if (servingUnit === 'g') {
-          scaleFactor = data.amount / servingSizeNum
-        } else {
-          scaleFactor = data.amount / 100 // fallback to per 100g
-        }
-        baseResult.total_servings = data.amount
-      }
-
-      // Scale per_serving_nutrients to match total_servings=1 * scale
-      const scaledPerServing: Nutrient[] = baseResult.per_serving_nutrients.map(nut => ({
-        ...nut,
-        value: nut.value * scaleFactor
-      }))
-
-      // Scale total_nutrients
-      const computedTotalNutrients: Nutrient[] = baseResult.total_nutrients.map(nut => ({
-        ...nut,
-        value: nut.value * scaleFactor
-      }))
+      let result = await apiClient.getCalories(apiRequest)
 
       const extendedResult: CalorieResponse = {
-        ...baseResult,
+        ...result,
         mode: data.mode,
         amount: data.amount,
-        computed_total_nutrients: computedTotalNutrients,
-        per_serving_nutrients: scaledPerServing, // now per 'amount'
       }
 
       onResult(extendedResult)
