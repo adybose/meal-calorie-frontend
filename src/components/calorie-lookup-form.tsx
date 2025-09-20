@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { calorieSchema, type CalorieFormData } from "@/lib/validations"
 import { apiClient } from "@/lib/api"
 import type { CalorieRequest, CalorieResponse, Nutrient } from "@/types"
-import { Loader2, Search, RadioGroup, RadioGroupItem } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
 
 interface CalorieFormProps {
   onResult: (result: CalorieResponse) => void

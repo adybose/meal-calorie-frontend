@@ -38,7 +38,7 @@ export default function CaloriesPage() {
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8 max-w-6xl">
       <div className="space-y-6 sm:space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Searches</CardTitle>
@@ -71,7 +71,7 @@ export default function CaloriesPage() {
               <p className="text-xs text-muted-foreground">calories per dish</p>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         <div className="text-center space-y-2">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Calorie Lookup</h1>
