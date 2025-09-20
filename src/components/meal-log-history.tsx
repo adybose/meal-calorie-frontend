@@ -104,6 +104,9 @@ export function MealLogHistory() {
             const isExpanded = expanded.has(dateKey)
             const totalMeals = group.meals.length
             const totalCalories = group.meals.reduce((sum, meal) => sum + getCalories(meal.computed_total_nutrients || meal.total_nutrients), 0)
+            const totalProtein = group.meals.reduce((sum, meal) => sum + getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Protein'), 0)
+            const totalFat = group.meals.reduce((sum, meal) => sum + getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Total lipid (fat)'), 0)
+            const totalCarbs = group.meals.reduce((sum, meal) => sum + getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Carbohydrate, by difference'), 0)
             const dayLabel = isToday(group.date) ? 'Today' : isYesterday(group.date) ? 'Yesterday' : format(group.date, 'MMM d, yyyy')
             const fullDate = format(group.date, 'EEEE, MMMM d, yyyy')
 
@@ -117,16 +120,29 @@ export function MealLogHistory() {
                     className="w-full justify-between p-6 text-left h-auto"
                     onClick={() => toggleGroup(dateKey)}
                   >
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center w-full">
                       <div className="space-y-1">
                         <h3 className="text-lg font-semibold">{dayLabel}</h3>
                         <p className="text-sm text-muted-foreground">{fullDate}</p>
                       </div>
-                      <div className="text-right space-y-1">
-                        <p className="text-sm font-medium">{totalMeals} meals</p>
-                        <p className="text-sm font-medium">{totalCalories.toLocaleString()} cal</p>
+                      <div className="ml-auto flex items-center gap-4">
+                        <div className="text-right space-y-1">
+                          <p className="text-sm font-medium">{totalMeals} meals</p>
+                          <p className="text-base font-medium text-primary">{totalCalories.toLocaleString()} calories</p>
+                          <div className="flex flex-wrap justify-end gap-1">
+                            <Badge variant="outline" className="flex items-center gap-1 text-xs border-primary w-fit">
+                              <Dumbbell className="h-3 w-3" /> {Math.round(totalProtein)}g
+                            </Badge>
+                            <Badge variant="outline" className="flex items-center gap-1 text-xs border-primary w-fit">
+                              <Droplet className="h-3 w-3" /> {Math.round(totalFat)}g
+                            </Badge>
+                            <Badge variant="outline" className="flex items-center gap-1 text-xs border-primary w-fit">
+                              <Wheat className="h-3 w-3" /> {Math.round(totalCarbs)}g
+                            </Badge>
+                          </div>
+                        </div>
+                        <ChevronDown className={`h-5 w-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                       </div>
-                      <ChevronDown className={`h-5 w-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                     </div>
                   </Button>
                   {isExpanded && (
@@ -156,8 +172,7 @@ export function MealLogHistory() {
                                    </p>
                                  </div>
                                  <div className="text-right flex-shrink-0">
-                                   <div className="font-semibold text-primary text-sm sm:text-base">{totalCalories}</div>
-                                   <div className="text-xs text-muted-foreground">calories</div>
+                                   <div className="font-semibold text-primary text-sm sm:text-base">{totalCalories} kcal</div>
                                    <div className="flex flex-wrap justify-end gap-1 mt-2">
                                      <Badge variant="outline" className="flex items-center gap-1 text-xs border-primary">
                                        <Dumbbell className="h-3 w-3" /> {protein}g

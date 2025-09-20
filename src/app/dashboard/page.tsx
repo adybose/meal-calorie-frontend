@@ -6,16 +6,21 @@ import { useAuthStore } from "@/stores/auth-store"
 import { useMealLogStore } from "@/stores/meal-log-store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calculator, TrendingUp, Utensils } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Calculator, TrendingUp, Utensils, Dumbbell, Droplet, Wheat } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { MealLogForm } from "@/components/meal-log-form"
 import { MealLogHistory } from "@/components/meal-log-history"
-import { CalorieLookupHistory } from "@/components/calorie-lookup-history"
 import type { Nutrient } from "@/types"
 
 function getCalories(nutrients: Nutrient[] | undefined): number {
   const energyNutrient = nutrients?.find(n => n.name === 'Energy' && n.unit === 'kcal')
   return energyNutrient ? Math.round(energyNutrient.value) : 0
+}
+
+function getNutrientValue(nutrients: Nutrient[] | undefined, name: string): number {
+  const nutrient = nutrients?.find(n => n.name === name)
+  return nutrient ? Math.round(nutrient.value) : 0
 }
 
 export default function DashboardPage() {
@@ -41,7 +46,9 @@ export default function DashboardPage() {
 
   const totalMealsToday = todayMeals.length
   const caloriesToday = todayMeals.reduce((sum, meal) => sum + getCalories(meal.computed_total_nutrients || meal.total_nutrients), 0)
-  const avgCaloriesPerMealToday = totalMealsToday > 0 ? Math.round(caloriesToday / totalMealsToday) : 0
+  const totalProtein = todayMeals.reduce((sum, meal) => sum + getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Protein'), 0)
+  const totalFat = todayMeals.reduce((sum, meal) => sum + getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Total lipid (fat)'), 0)
+  const totalCarbs = todayMeals.reduce((sum, meal) => sum + getNutrientValue(meal.computed_total_nutrients || meal.total_nutrients, 'Carbohydrate, by difference'), 0)
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8">
@@ -71,12 +78,21 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average per Meal</CardTitle>
+              <CardTitle className="text-sm font-medium">Macros Today</CardTitle>
               <Calculator className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{avgCaloriesPerMealToday}</div>
-              <p className="text-xs text-muted-foreground">calories per meal</p>
+              <div className="flex flex-col gap-2">
+                <Badge variant="outline" className="flex items-center gap-1 border-primary w-fit">
+                  <Dumbbell className="h-3 w-3" /> Protein: {Math.round(totalProtein)}g
+                </Badge>
+                <Badge variant="outline" className="flex items-center gap-1 border-primary w-fit">
+                  <Droplet className="h-3 w-3" /> Fat: {Math.round(totalFat)}g
+                </Badge>
+                <Badge variant="outline" className="flex items-center gap-1 border-primary w-fit">
+                  <Wheat className="h-3 w-3" /> Carbs: {Math.round(totalCarbs)}g
+                </Badge>
+              </div>
             </CardContent>
           </Card>
         </div>
