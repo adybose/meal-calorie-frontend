@@ -14,7 +14,8 @@ export const loginSchema = z.object({
 
 export const calorieSchema = z.object({
   dish_name: z.string().min(1, "Dish name is required").max(100, "Dish name too long"),
-  servings: z.number().min(0.1, "Servings must be at least 0.1").max(50, "Maximum 50 servings"),
+  mode: z.enum(["servings", "grams"]),
+  amount: z.number().min(0.1, "Amount must be at least 0.1").max(1000, "Maximum 1000g or servings"),
 })
 
 export type RegisterFormData = z.infer<typeof registerSchema>

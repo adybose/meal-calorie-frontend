@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { CalorieLookupForm } from "@/components/calorie-lookup-form"
 import { ResultCard } from "@/components/result-card"
-import type { CalorieResponse } from "@/types"
+import type { CalorieResponse, Nutrient } from "@/types"
 import { useAuthGuard } from "@/hooks/use-auth-guard"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCalorieLookupStore } from "@/stores/calorie-lookup-store"
@@ -11,12 +11,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CalorieLookupHistory } from "@/components/calorie-lookup-history"
 import { Calculator, TrendingUp, Utensils } from "lucide-react"
 
+function getCalories(nutrients: Nutrient[] | undefined): number {
+  const energyNutrient = nutrients?.find(n => n.name === 'Energy' && n.unit === 'kcal')
+  return energyNutrient ? Math.round(energyNutrient.value) : 0
+}
+
 export default function CaloriesPage() {
   useAuthGuard()
   const { user } = useAuthStore()
   const { history } = useCalorieLookupStore()
   const totalSearches = history.length
-  const totalCalories = history.reduce((sum, meal) => sum + meal.total_calories, 0)
+  const totalCalories = history.reduce((sum, lookup) => {
+    const nutrients = lookup.computed_total_nutrients || lookup.total_nutrients
+    return sum + getCalories(nutrients)
+  }, 0)
   const avgCaloriesPerMeal = totalSearches > 0 ? Math.round(totalCalories / totalSearches) : 0
 
   const [result, setResult] = useState<CalorieResponse | null>(null)

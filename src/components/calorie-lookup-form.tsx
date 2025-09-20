@@ -10,8 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast"
 import { calorieSchema, type CalorieFormData } from "@/lib/validations"
 import { apiClient } from "@/lib/api"
-import type { CalorieResponse } from "@/types"
-import { Loader2, Search } from "lucide-react"
+import type { CalorieRequest, CalorieResponse, Nutrient } from "@/types"
+import { Loader2, Search, RadioGroup, RadioGroupItem } from "lucide-react"
 
 interface CalorieFormProps {
   onResult: (result: CalorieResponse) => void
@@ -26,21 +26,68 @@ export function CalorieLookupForm({ onResult }: CalorieFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<CalorieFormData>({
     resolver: zodResolver(calorieSchema),
     defaultValues: {
-      servings: 1,
+      dish_name: "",
+      mode: "servings",
+      amount: 1,
     },
   })
+
+  const selectedMode = watch("mode")
 
   const onSubmit = async (data: CalorieFormData) => {
     setIsLoading(true)
     try {
-      const result = await apiClient.getCalories(data)
-      onResult(result)
+      // Always request for 1 serving to get base data
+      const apiRequest: CalorieRequest = {
+        dish_name: data.dish_name,
+        servings: 1,
+      }
+      let baseResult = await apiClient.getCalories(apiRequest)
+
+      // Compute scale factor based on mode
+      let scaleFactor = 1
+      if (data.mode === "servings") {
+        scaleFactor = data.amount
+        baseResult.total_servings = data.amount
+      } else if (data.mode === "grams") {
+        const servingSizeNum = parseFloat(baseResult.serving_size.split(' ')[0]) || 100
+        const servingUnit = baseResult.serving_size.split(' ')[1]?.toLowerCase()
+        if (servingUnit === 'g') {
+          scaleFactor = data.amount / servingSizeNum
+        } else {
+          scaleFactor = data.amount / 100 // fallback to per 100g
+        }
+        baseResult.total_servings = data.amount
+      }
+
+      // Scale per_serving_nutrients to match total_servings=1 * scale
+      const scaledPerServing: Nutrient[] = baseResult.per_serving_nutrients.map(nut => ({
+        ...nut,
+        value: nut.value * scaleFactor
+      }))
+
+      // Scale total_nutrients
+      const computedTotalNutrients: Nutrient[] = baseResult.total_nutrients.map(nut => ({
+        ...nut,
+        value: nut.value * scaleFactor
+      }))
+
+      const extendedResult: CalorieResponse = {
+        ...baseResult,
+        mode: data.mode,
+        amount: data.amount,
+        computed_total_nutrients: computedTotalNutrients,
+        per_serving_nutrients: scaledPerServing, // now per 'amount'
+      }
+
+      onResult(extendedResult)
       toast({
         title: "Success!",
-        description: `Found calorie information for ${result.dish_name}`,
+        description: `Found calorie information for ${data.dish_name} (${data.amount} ${data.mode})`,
       })
     } catch (error) {
       toast({
@@ -80,20 +127,51 @@ export function CalorieLookupForm({ onResult }: CalorieFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="servings" className="text-sm font-medium">
-              Number of Servings
+            <Label className="text-sm font-medium">Measurement Mode</Label>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="mode-servings"
+                  type="radio"
+                  value="servings"
+                  {...register("mode")}
+                  className="w-4 h-4 text-primary focus:ring-primary"
+                />
+                <Label htmlFor="mode-servings" className="text-sm font-medium cursor-pointer">
+                  Servings
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="mode-grams"
+                  type="radio"
+                  value="grams"
+                  {...register("mode")}
+                  className="w-4 h-4 text-primary focus:ring-primary"
+                />
+                <Label htmlFor="mode-grams" className="text-sm font-medium cursor-pointer">
+                  Grams
+                </Label>
+              </div>
+            </div>
+            {errors.mode && <p className="text-xs text-destructive">{errors.mode.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="amount" className="text-sm font-medium">
+              {selectedMode === "servings" ? "Number of Servings" : "Number of Grams"}
             </Label>
             <Input
-              id="servings"
+              id="amount"
               type="number"
               step="0.1"
               min="0.1"
-              max="50"
-              {...register("servings", { valueAsNumber: true })}
-              placeholder="1"
+              max={selectedMode === "servings" ? 50 : 1000}
+              {...register("amount", { valueAsNumber: true })}
+              placeholder={selectedMode === "servings" ? "1" : "100"}
               className="w-full text-sm"
             />
-            {errors.servings && <p className="text-xs text-destructive">{errors.servings.message}</p>}
+            {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
           </div>
 
           <Button type="submit" className="w-full text-sm" disabled={isLoading}>

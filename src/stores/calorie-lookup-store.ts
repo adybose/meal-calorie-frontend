@@ -19,15 +19,15 @@ export const useCalorieLookupStore = create<CalorieLookupState>()(
     (set, get) => ({
       history: [],
 
-      addCalorieLookup: (meal: CalorieResponse) => {
-        const newCalorieLookup: CalorieLookupHistory = {
-          ...meal,
+      addCalorieLookup: (lookup: CalorieResponse) => {
+        const newLookup: CalorieLookupHistory = {
+          ...lookup,
           id: crypto.randomUUID(),
           timestamp: Date.now(),
         }
-
+    
         set((state) => ({
-          history: [newCalorieLookup, ...state.history].slice(0, 50), // Keep only last 50 meals
+          history: [newLookup, ...state.history].slice(0, 50), // Keep only last 50 lookups
         }))
       },
 
