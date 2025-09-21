@@ -28,6 +28,9 @@ Calorie Lookup History
 
 # Getting Started
 
+## Install the application backend
+Install and setup the application backend from [this](https://github.com/adybose/meal-calorie-backendrepository) repository
+
 ## Local Development Setup
 - Clone the repository to a desired location in your computer with:
 ```bash
