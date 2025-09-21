@@ -117,7 +117,6 @@ export default function DashboardPage() {
           </Card>
 
           <MealLogHistory />
-          {/* <CalorieLookupHistory /> */}
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>

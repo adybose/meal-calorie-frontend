@@ -165,7 +165,10 @@ export function MealLogHistory() {
                                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                                >
                                  <div className="flex-1 min-w-0 pr-4">
-                                   <h4 className="font-medium truncate text-sm sm:text-base">{meal.dish_name}</h4>
+                                   <div>
+                                     <div className="font-medium truncate text-sm sm:text-base">{meal.dish_name}</div>
+                                     <div className="text-sm font-normal text-muted-foreground">{meal.selected_food}</div>
+                                   </div>
                                    <p className="text-xs text-muted-foreground mt-1">{measurement}</p>
                                    <p className="text-xs text-muted-foreground mt-1">
                                      {formatDistanceToNow(meal.timestamp, { addSuffix: true })}
