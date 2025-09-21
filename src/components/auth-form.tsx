@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { registerSchema, loginSchema, type RegisterFormData, type LoginFormData } from "@/lib/validations"
 import { apiClient } from "@/lib/api"
 import { useAuthStore } from "@/stores/auth-store"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
 interface AuthFormProps {
@@ -23,6 +23,8 @@ export function AuthForm({ mode }: AuthFormProps) {
   const { toast } = useToast()
   const { setAuth } = useAuthStore()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
 
   const isRegister = mode === "register"
   const schema = isRegister ? registerSchema : loginSchema
@@ -54,7 +56,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         title: isRegister ? "Account created!" : "Welcome back!",
         description: isRegister ? "You can now start tracking calories." : "Successfully logged in.",
       })
-      router.push("/dashboard")
+      router.push(redirectTo)
     } catch (error) {
       console.error('[Auth Form] Login/Register error:', error)
       toast({

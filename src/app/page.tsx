@@ -1,9 +1,32 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calculator, Search, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useAuthStore } from "@/stores/auth-store"
 
 export default function HomePage() {
+  const { isAuthenticated, isHydrating } = useAuthStore()
+  const router = useRouter()
+
+  const handleLogMeal = () => {
+    if (isAuthenticated) {
+      router.push("/dashboard")
+    } else {
+      router.push("/login?redirect=/dashboard")
+    }
+  }
+
+  const handleLookupCalories = () => {
+    if (isAuthenticated) {
+      router.push("/calories")
+    } else {
+      router.push("/login?redirect=/calories")
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <main className="container mx-auto px-4 py-16">
@@ -14,11 +37,11 @@ export default function HomePage() {
             nutrition data.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild>
-              <Link href="/register">Get Started Free</Link>
+            <Button size="lg" onClick={handleLogMeal}>
+              Log a Meal
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/login">Sign In</Link>
+            <Button size="lg" variant="outline" onClick={handleLookupCalories}>
+              Lookup Calories
             </Button>
           </div>
         </div>
@@ -86,3 +109,4 @@ export default function HomePage() {
     </div>
   )
 }
+
