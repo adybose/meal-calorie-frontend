@@ -3,6 +3,29 @@ Frontend client for the **meal-calorie-backend** API.
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+
+# Features
+- Lookup calories and macronutrients for any dish
+- Log meals to track daily calories and macronutrients
+
+
+# Preview
+Landing Page
+<img width="1306" height="628" alt="Screenshot from 2025-09-21 21-45-30" src="https://github.com/user-attachments/assets/f5e427fa-e8a0-46e4-9b59-98d9bf7886b9" />
+
+Meal Dashboard
+<img width="1303" height="624" alt="Screenshot from 2025-09-22 01-55-48" src="https://github.com/user-attachments/assets/74621f00-68ad-4b86-aaaa-cd2c7b758c46" />
+
+Meal Log History
+<img width="1303" height="625" alt="Screenshot from 2025-09-21 21-47-20" src="https://github.com/user-attachments/assets/731a1b6f-be95-4b57-89e0-54484b9dae26" />
+
+Calorie Lookup Page
+<img width="1306" height="625" alt="Screenshot from 2025-09-21 21-48-48" src="https://github.com/user-attachments/assets/412627be-3d39-4876-b037-df493754f282" />
+
+Calorie Lookup History
+<img width="1303" height="629" alt="Screenshot from 2025-09-21 21-48-55" src="https://github.com/user-attachments/assets/4ad754a5-7aa3-4a2b-9043-98e4b2e14553" />
+
+
 # Getting Started
 
 ## Local Development Setup
