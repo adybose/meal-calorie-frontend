@@ -59,13 +59,16 @@ export function MealLogForm({ onResult }: MealLogFormProps) {
       toast({
         title: "Meal Logged!",
         description: `Logged ${result.dish_name} with ${Math.round(calories)} calories`,
+        variant: "success",
       })
       reset()
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to log meal"
+      const isDishNotFound = errorMessage === "Dish not found"
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to log meal",
-        variant: "destructive",
+        description: errorMessage.replace(/\b\w/g, l => l.toUpperCase()),
+        variant: isDishNotFound ? "warning" : "destructive",
       })
     } finally {
       setIsLoading(false)

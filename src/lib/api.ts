@@ -56,7 +56,7 @@ class ApiClient {
           errorData = { message: "An error occurred" };
         }
         console.error(`[API Error] ${response.status}:`, errorData);
-        throw new Error(errorData.message || `HTTP ${response.status}`);
+        throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}`);
       }
 
       const data = await response.json();

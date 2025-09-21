@@ -58,12 +58,15 @@ export function CalorieLookupForm({ onResult }: CalorieFormProps) {
       toast({
         title: "Success!",
         description: `Found calorie information for ${data.dish_name} (${data.amount} ${data.mode})`,
+        variant: "success",
       })
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to get calorie information"
+      const isDishNotFound = errorMessage === "Dish not found"
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to get calorie information",
-        variant: "destructive",
+        description: errorMessage.replace(/\b\w/g, l => l.toUpperCase()),
+        variant: isDishNotFound ? "warning" : "destructive",
       })
     } finally {
       setIsLoading(false)
